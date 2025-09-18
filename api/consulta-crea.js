@@ -8,8 +8,13 @@ const formatCpfForCrea = (cpf) => String(cpf || '').replace(/\D/g, '').replace(/
 export default async function handler(req, res) {
     // Configurações de CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Responde imediatamente para requisições OPTIONS (pré-voo)
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
     const { cpf } = req.query;
     if (!cpf || cpf.replace(/\D/g, '').length !== 11) {

@@ -2,18 +2,30 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/*.js",
+      "src": "api/consulta-crea.js",
       "use": "@vercel/node"
     },
     {
-      "src": "public/**",
+      "src": "api/consulta-cnpj.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/public"
+      "src": "/api/consulta-crea",
+      "dest": "/api/consulta-crea.js"
+    },
+    {
+      "src": "/api/consulta-cnpj",
+      "dest": "/api/consulta-cnpj.js"
+    },
+    {
+      "src": "^/(.*)",
+      "dest": "/public/$1"
     }
   ]
 }

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----- CONFIGURAÇÃO -----
     const API_KEY = '0f418c66da74e50da611ff114ca9eb9ad93626140037a3dd05703f43b63763cd';
-    const API_BASE = 'https://apicpf.com/api/consulta?cpf=';
+    const API_BASE = '/api/consulta-crea';
     const CREA_API_ENDPOINT = '/api/consulta-crea';
     const CNPJ_API_ENDPOINT = '/api/consulta-cnpj';
     const RATE_LIMIT_COUNT = 3;
