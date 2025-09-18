@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const outCpf = $('outCpf'), outNome = $('outNome'), outGenero = $('outGenero');
     const outNascimento = $('outNascimento'), outSituacao = $('outSituacao'), outTitulo = $('outTitulo');
     
-    // ... (A lógica de RATE LIMIT permanece a mesma) ...
+    // ----- LÓGICA DE RATE LIMIT -----
     let requestTimestamps = [];
     let countdownInterval = null;
 
@@ -89,8 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
-    function toggleFields(source) { /* ... (mesma função anterior) ... */ }
-    function clearResults() { /* ... (mesma função anterior) ... */ }
+    function toggleFields(source) {
+        document.querySelectorAll('.crea-field').forEach(f => f.style.display = source === 'crea' ? 'block' : 'none');
+        document.getElementById('field-genero').style.display = source === 'api' ? 'block' : 'none';
+        document.getElementById('field-nascimento').style.display = source === 'api' ? 'block' : 'none';
+    }
+    
+    function clearResults() {
+        outCpf.textContent = '—';
+        outNome.textContent = '—';
+        outGenero.textContent = '—';
+        outNascimento.textContent = '—';
+        outSituacao.textContent = '—';
+        outTitulo.textContent = '—';
+    }
 
     // ----- Lógica Principal de Consulta -----
     async function handleConsulta() {
@@ -112,27 +124,33 @@ document.addEventListener('DOMContentLoaded', () => {
             : fetch(API_BASE + encodeURIComponent(cleaned), { headers: { 'X-API-KEY': API_KEY } });
         
         try {
-            const resp = await promise;
-            const data = await resp.json();
+            const rawResponse = await promise;
+            const data = await rawResponse.json();
             
-            // DEBUG: Loga a resposta completa no console para análise
             console.log(`[DEBUG] Resposta da fonte '${source}':`, data);
 
-            if (!resp.ok) { throw data; /* Lança o objeto de erro completo */ }
+            if (!rawResponse.ok) { throw data; }
+
+            // AJUSTE CRÍTICO: A resposta da API pública vem dentro de um objeto 'data'.
+            // Verificamos a fonte e pegamos os dados do lugar certo.
+            let responseData = data;
+            if (source === 'api' && data.data) {
+                responseData = data.data; 
+            }
 
             outCpf.textContent = fmtCpf(cleaned);
-            outNome.textContent = data.nome ? String(data.nome).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase() : 'NÃO ENCONTRADO';
+            outNome.textContent = responseData.nome ? String(responseData.nome).normalize('NFD').replace(/[\u0300-\u36f]/g, "").toUpperCase() : 'NÃO ENCONTRADO';
             
             if (source === 'api') {
-                outGenero.textContent = data.sexo === 'M' ? 'MASCULINO' : (data.sexo === 'F' ? 'FEMININO' : 'Não informado');
-                outNascimento.textContent = data.nascimento || 'Não informado';
+                // Usamos 'responseData' que agora aponta para o objeto correto.
+                outGenero.textContent = responseData.genero === 'M' ? 'MASCULINO' : (responseData.genero === 'F' ? 'FEMININO' : 'Não informado');
+                outNascimento.textContent = responseData.data_nascimento || 'Não informado';
             } else {
-                outSituacao.textContent = data.situacao || 'Não informado';
-                outTitulo.textContent = data.titulo || 'Não informado';
+                outSituacao.textContent = responseData.situacao || 'Não informado';
+                outTitulo.textContent = responseData.titulo || 'Não informado';
             }
 
         } catch (err) {
-            // DEBUG: O erro detalhado do backend (err.details) será exibido aqui
             console.error(`[DEBUG] Falha na consulta da fonte '${source}':`, err);
             const errorMessage = err.details || err.message || err.error || 'Erro desconhecido na consulta.';
             showBanner('error', errorMessage);
@@ -148,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
     sourceSel.addEventListener('change', () => { clearResults(); toggleFields(sourceSel.value) });
     inputCpf.addEventListener('input', (e) => { e.target.value = fmtCpf(e.target.value.replace(/\D/g, '')); });
     
-    // Event Listener para a funcionalidade de COPIAR
     resultsGrid.addEventListener('click', (e) => {
         if (e.target.classList.contains('copyable')) {
             const textToCopy = e.target.textContent;
