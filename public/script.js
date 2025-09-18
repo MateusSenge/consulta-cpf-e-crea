@@ -3,9 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----- CONFIGURAÇÃO -----
     const API_KEY = '0f418c66da74e50da611ff114ca9eb9ad93626140037a3dd05703f43b63763cd';
-    const API_BASE = '/api/consulta-crea';
-    const CREA_API_ENDPOINT = '/api/consulta-crea';
-    const CNPJ_API_ENDPOINT = '/api/consulta-cnpj';
+    const API_BASE = 'https://consulta-cpf-e-crea.vercel.app/api/consulta-crea';
+    const CREA_API_ENDPOINT = 'https://consulta-cpf-e-crea.vercel.app/api/consulta-crea';
+    const CNPJ_API_ENDPOINT = 'https://consulta-cpf-e-crea.vercel.app/api/consulta-cnpj';
     const RATE_LIMIT_COUNT = 3;
     const RATE_LIMIT_SECONDS = 60;
     
@@ -176,8 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
         inputCpf.maxLength = currentMode === 'cpf' ? '14' : '18';
         inputCpf.value = '';
         
-        // Atualiza o texto do botão de alternância
-        modeToggle.textContent = currentMode === 'cpf' ? 'Consultar CNPJ' : 'Consultar CPF';
+        // Obtém a referência ao botão de alternância
+        const modeToggle = document.getElementById('modeToggle');
+        if (modeToggle) {
+            modeToggle.textContent = currentMode === 'cpf' ? 'Consultar CNPJ' : 'Consultar CPF';
+        }
         
         // Atualiza a fonte de dados para CNPJ (sempre usa a API de CNPJ)
         if (currentMode === 'cnpj') {
