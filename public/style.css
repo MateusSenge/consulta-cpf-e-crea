@@ -99,8 +99,14 @@ body {
 }
 
 form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#inputContainer {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 10px;
   align-items: center;
 }
@@ -144,7 +150,7 @@ input[type=text]:focus {
   border-color: var(--accent-start);
 }
 
-button {
+button, .toggle-mode {
   background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
   color: white;
   border: 0;
@@ -153,6 +159,25 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.toggle-mode {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 5px 0;
+  padding: 10px 15px;
+  font-size: 0.85rem;
+}
+
+.toggle-mode:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(11, 94, 215, 0.2);
 }
 
 button:hover:not(:disabled) {
@@ -221,6 +246,7 @@ button:disabled {
     margin-top: 20px;
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
 
 /* ESTILOS PARA NOTIFICAÇÃO "COPIADO" (TOAST) */
 .toast {
@@ -248,6 +274,47 @@ button:disabled {
 
 .copyable {
   cursor: pointer;
+  transition: opacity 0.2s;
 }
-    opacity: 0.7;
+
+.copyable:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Estilo para campos que ocupam duas colunas */
+.field[data-full-width] {
+  grid-column: 1 / -1;
+}
+
+/* Estilo para campos lado a lado (cidade/UF) */
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+/* Estilo para campos de CNPJ */
+.cnpj-field .value {
+  word-break: break-word;
+}
+
+/* Ajuste para campos longos em telas pequenas */
+@media (max-width: 500px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .two-columns {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  
+  #inputContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  button, .toggle-mode {
+    width: 100%;
+  }
 }

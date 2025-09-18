@@ -1,7 +1,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta de CPF — SENGE‑MG v3.1</title>
+  <title>Consulta de CPF/CNPJ — SENGE‑MG v3.2</title>
   
   <link rel="icon" type="image/png" href="favicon.png">
   
@@ -16,7 +16,7 @@
         <div class="logo">MG</div>
         <div class="org">
           <h1>SENGE‑MG</h1>
-          <p>Consulta de CPF Integrada</p>
+          <p>Consulta de CPF/CNPJ Integrada</p>
         </div>
       </header>
 
@@ -26,22 +26,27 @@
               <option value="api">API Pública</option>
               <option value="crea">CREA-MG</option>
           </select>
-          <input id="cpf" type="text" placeholder="Digite o CPF" maxlength="14" autocomplete="off" />
-          <button id="check" type="submit">Consultar</button>
+          <div id="inputContainer">
+            <input id="cpf" type="text" placeholder="Digite o CPF" maxlength="14" autocomplete="off" />
+            <button id="check" type="submit">Consultar</button>
+          </div>
         </form>
         <div class="hint">Validação local e limite de 3 consultas/min.</div>
 
         <div id="banner" class="banner" style="display:none"></div>
 
         <div id="resultsGrid" class="results-grid">
+          <!-- Campos comuns -->
           <div class="field">
-            <div class="label">CPF</div>
+            <div class="label">CPF/CNPJ</div>
             <div id="outCpf" class="value copyable">—</div>
           </div>
           <div class="field">
-            <div class="label">Nome Completo</div>
+            <div class="label">Nome/Razão Social</div>
             <div id="outNome" class="value copyable">—</div>
           </div>
+          
+          <!-- Campos específicos de CPF -->
           <div class="field" id="field-genero">
             <div class="label">Gênero</div>
             <div id="outGenero" class="value copyable">—</div>
@@ -57,6 +62,51 @@
           <div class="field crea-field" style="display: none;">
             <div class="label">Título Profissional</div>
             <div id="outTitulo" class="value copyable">—</div>
+          </div>
+          
+          <!-- Campos específicos de CNPJ -->
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Nome Fantasia</div>
+            <div id="outNomeFantasia" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Situação</div>
+            <div id="outSituacaoCNPJ" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Data de Abertura</div>
+            <div id="outAbertura" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Endereço</div>
+            <div id="outEndereco" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Bairro</div>
+            <div id="outBairro" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Cidade/UF</div>
+            <div class="two-columns">
+              <div id="outCidade" class="value copyable">—</div>
+              <div id="outUF" class="value copyable">—</div>
+            </div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">CEP</div>
+            <div id="outCEP" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Atividade Principal</div>
+            <div id="outAtividade" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">Telefone</div>
+            <div id="outTelefone" class="value copyable">—</div>
+          </div>
+          <div class="field cnpj-field" style="display: none;">
+            <div class="label">E-mail</div>
+            <div id="outEmail" class="value copyable">—</div>
           </div>
         </div>
       </section>

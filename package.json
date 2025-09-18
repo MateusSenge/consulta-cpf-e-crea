@@ -1,13 +1,20 @@
 {
   "name": "senge-consulta-cpf",
   "version": "2.0.0",
-  "description": "Consulta de CPF com scraping robusto do CREA",
+  "description": "Consulta de CPF/CNPJ com integração a várias fontes",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "vercel dev"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "@sparticuz/chromium": "^123.0.1",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2",
     "puppeteer-core": "^22.10.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
