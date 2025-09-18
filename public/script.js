@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----- CONFIGURAÇÃO -----
     const API_KEY = '0f418c66da74e50da611ff114ca9eb9ad93626140037a3dd05703f43b63763cd';
-    const API_BASE = 'https://consulta-cpf-e-crea.vercel.app/api/consulta-crea';
+    const API_BASE = 'https://apicpf.com/api/consulta?cpf=';
     const CREA_API_ENDPOINT = 'https://consulta-cpf-e-crea.vercel.app/api/consulta-crea';
     const CNPJ_API_ENDPOINT = 'https://consulta-cpf-e-crea.vercel.app/api/consulta-cnpj';
     const RATE_LIMIT_COUNT = 3;
