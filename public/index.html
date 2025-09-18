@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta de CPF — SENGE‑MG v3</title>
+  <title>Consulta de CPF — SENGE‑MG v3.1</title>
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
@@ -32,30 +32,30 @@
 
         <div id="banner" class="banner" style="display:none"></div>
 
-        <div class="results-grid">
+        <div id="resultsGrid" class="results-grid">
           <div class="field">
             <div class="label">CPF</div>
-            <div id="outCpf" class="value">—</div>
+            <div id="outCpf" class="value copyable">—</div>
           </div>
           <div class="field">
             <div class="label">Nome Completo</div>
-            <div id="outNome" class="value">—</div>
+            <div id="outNome" class="value copyable">—</div>
           </div>
           <div class="field" id="field-genero">
             <div class="label">Gênero</div>
-            <div id="outGenero" class="value">—</div>
+            <div id="outGenero" class="value copyable">—</div>
           </div>
           <div class="field" id="field-nascimento">
             <div class="label">Nascimento</div>
-            <div id="outNascimento" class="value">—</div>
+            <div id="outNascimento" class="value copyable">—</div>
           </div>
           <div class="field crea-field" style="display: none;">
             <div class="label">Situação CREA</div>
-            <div id="outSituacao" class="value">—</div>
+            <div id="outSituacao" class="value copyable">—</div>
           </div>
           <div class="field crea-field" style="display: none;">
             <div class="label">Título Profissional</div>
-            <div id="outTitulo" class="value">—</div>
+            <div id="outTitulo" class="value copyable">—</div>
           </div>
         </div>
       </section>
@@ -64,5 +64,8 @@
         Interface de consulta interna | Operebem
     </footer>
   </main>
+  
+  <div id="toast" class="toast"></div>
+
 </body>
 </html>

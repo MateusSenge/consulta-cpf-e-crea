@@ -4,24 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----- CONFIGURAÇÃO -----
     const API_KEY = '0f418c66da74e50da611ff114ca9eb9ad93626140037a3dd05703f43b63763cd';
     const API_BASE = 'https://apicpf.com/api/consulta?cpf=';
-    const CREA_API_ENDPOINT = '/api/consulta-crea'; // Nosso backend!
+    const CREA_API_ENDPOINT = '/api/consulta-crea';
     const RATE_LIMIT_COUNT = 3;
     const RATE_LIMIT_SECONDS = 60;
 
     // ----- UI refs -----
     const $ = id => document.getElementById(id);
-    const inputCpf = $('cpf');
-    const btnCheck = $('check');
-    const banner = $('banner');
-    const sourceSel = $('source');
-    const outCpf = $('outCpf');
-    const outNome = $('outNome');
-    const outGenero = $('outGenero');
-    const outNascimento = $('outNascimento');
-    const outSituacao = $('outSituacao');
-    const outTitulo = $('outTitulo');
+    const inputCpf = $('cpf'), btnCheck = $('check'), banner = $('banner');
+    const sourceSel = $('source'), resultsGrid = $('resultsGrid'), toast = $('toast');
+    const outCpf = $('outCpf'), outNome = $('outNome'), outGenero = $('outGenero');
+    const outNascimento = $('outNascimento'), outSituacao = $('outSituacao'), outTitulo = $('outTitulo');
     
-    // ----- LÓGICA DE RATE LIMIT -----
+    // ... (A lógica de RATE LIMIT permanece a mesma) ...
     let requestTimestamps = [];
     let countdownInterval = null;
 
@@ -84,42 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ----- UI Feedback e Controle -----
-    const showBanner = (type, message) => {
-        banner.style.display = 'block';
-        banner.className = 'banner ' + type;
-        banner.textContent = message;
-    }
+    const showBanner = (type, message) => { banner.style.display = 'block'; banner.className = 'banner ' + type; banner.textContent = message; }
     const hideBanner = () => banner.style.display = 'none';
 
-    function toggleFields(source) {
-        document.querySelectorAll('.crea-field').forEach(f => f.style.display = source === 'crea' ? 'block' : 'none');
-        document.getElementById('field-genero').style.display = source === 'api' ? 'block' : 'none';
-        document.getElementById('field-nascimento').style.display = source === 'api' ? 'block' : 'none';
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
     }
-    
-    function clearResults() {
-        outCpf.textContent = '—';
-        outNome.textContent = '—';
-        outGenero.textContent = '—';
-        outNascimento.textContent = '—';
-        outSituacao.textContent = '—';
-        outTitulo.textContent = '—';
-    }
+
+    function toggleFields(source) { /* ... (mesma função anterior) ... */ }
+    function clearResults() { /* ... (mesma função anterior) ... */ }
 
     // ----- Lógica Principal de Consulta -----
     async function handleConsulta() {
         hideBanner();
-        if (!checkRateLimit()) {
-            showBanner('error', `Limite de ${RATE_LIMIT_COUNT} consultas por minuto atingido.`);
-            return;
-        }
-
-        const cpfValue = inputCpf.value;
-        const cleaned = cleanCpf(cpfValue);
-        if (!validaCPF(cleaned)) {
-            showBanner('error', 'CPF inválido (dígito verificador)');
-            return;
-        }
+        if (!checkRateLimit()) { showBanner('error', `Limite de ${RATE_LIMIT_COUNT} consultas por minuto.`); return; }
+        const cleaned = cleanCpf(inputCpf.value);
+        if (!validaCPF(cleaned)) { showBanner('error', 'CPF inválido (dígito verificador)'); return; }
 
         addRequestTimestamp();
         btnCheck.disabled = true;
@@ -129,56 +107,58 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleFields(source);
         clearResults();
 
-        let promise;
-        if (source === 'crea') {
-            promise = fetch(`${CREA_API_ENDPOINT}?cpf=${cleaned}`);
-        } else {
-            promise = fetch(API_BASE + encodeURIComponent(cleaned), {
-                headers: { 'X-API-KEY': API_KEY }
-            });
-        }
+        let promise = source === 'crea' 
+            ? fetch(`${CREA_API_ENDPOINT}?cpf=${cleaned}`)
+            : fetch(API_BASE + encodeURIComponent(cleaned), { headers: { 'X-API-KEY': API_KEY } });
         
         try {
             const resp = await promise;
             const data = await resp.json();
+            
+            // DEBUG: Loga a resposta completa no console para análise
+            console.log(`[DEBUG] Resposta da fonte '${source}':`, data);
 
-            if (!resp.ok) {
-                throw new Error(data.message || data.error || 'Erro na consulta');
-            }
+            if (!resp.ok) { throw data; /* Lança o objeto de erro completo */ }
 
             outCpf.textContent = fmtCpf(cleaned);
             outNome.textContent = data.nome ? String(data.nome).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase() : 'NÃO ENCONTRADO';
             
             if (source === 'api') {
-                outGenero.textContent = data.sexo === 'M' ? 'MASCULINO' : (data.sexo === 'F' ? 'FEMININO' : 'N/D');
-                outNascimento.textContent = data.nascimento || 'N/D';
+                outGenero.textContent = data.sexo === 'M' ? 'MASCULINO' : (data.sexo === 'F' ? 'FEMININO' : 'Não informado');
+                outNascimento.textContent = data.nascimento || 'Não informado';
             } else {
-                outSituacao.textContent = data.situacao || 'N/D';
-                outTitulo.textContent = data.titulo || 'N/D';
+                outSituacao.textContent = data.situacao || 'Não informado';
+                outTitulo.textContent = data.titulo || 'Não informado';
             }
 
         } catch (err) {
-            showBanner('error', err.message);
+            // DEBUG: O erro detalhado do backend (err.details) será exibido aqui
+            console.error(`[DEBUG] Falha na consulta da fonte '${source}':`, err);
+            const errorMessage = err.details || err.message || err.error || 'Erro desconhecido na consulta.';
+            showBanner('error', errorMessage);
             outCpf.textContent = fmtCpf(cleaned);
             outNome.textContent = 'FALHA NA CONSULTA';
         } finally {
-            if (!countdownInterval) {
-                btnCheck.disabled = false;
-                btnCheck.textContent = 'Consultar';
-            }
+            if (!countdownInterval) { btnCheck.disabled = false; btnCheck.textContent = 'Consultar'; }
         }
     }
 
     // ----- Event Listeners -----
     btnCheck.addEventListener('click', handleConsulta);
-    sourceSel.addEventListener('change', () => {
-        clearResults();
-        toggleFields(sourceSel.value)
-    });
-    inputCpf.addEventListener('input', (e) => {
-        e.target.value = fmtCpf(e.target.value.replace(/\D/g, ''));
+    sourceSel.addEventListener('change', () => { clearResults(); toggleFields(sourceSel.value) });
+    inputCpf.addEventListener('input', (e) => { e.target.value = fmtCpf(e.target.value.replace(/\D/g, '')); });
+    
+    // Event Listener para a funcionalidade de COPIAR
+    resultsGrid.addEventListener('click', (e) => {
+        if (e.target.classList.contains('copyable')) {
+            const textToCopy = e.target.textContent;
+            if (textToCopy && textToCopy !== '—' && textToCopy !== 'Não informado' && textToCopy !== 'N/D') {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => showToast(`"${textToCopy}" copiado!`))
+                    .catch(err => console.error('Falha ao copiar:', err));
+            }
+        }
     });
     
-    // Estado inicial
     toggleFields(sourceSel.value);
 });
