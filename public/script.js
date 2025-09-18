@@ -131,19 +131,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!rawResponse.ok) { throw data; }
 
-            // AJUSTE CRÍTICO: A resposta da API pública vem dentro de um objeto 'data'.
-            // Verificamos a fonte e pegamos os dados do lugar certo.
             let responseData = data;
             if (source === 'api' && data.data) {
                 responseData = data.data; 
             }
-
+            
             outCpf.textContent = fmtCpf(cleaned);
-            outNome.textContent = responseData.nome ? String(responseData.nome).normalize('NFD').replace(/[\u0300-\u36f]/g, "").toUpperCase() : 'NÃO ENCONTRADO';
+            // CORREÇÃO: A linha abaixo continha a expressão regular que quebrou. Esta versão é garantida.
+            outNome.textContent = responseData.nome ? String(responseData.nome).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase() : 'NÃO ENCONTRADO';
             
             if (source === 'api') {
-                // Usamos 'responseData' que agora aponta para o objeto correto.
                 outGenero.textContent = responseData.genero === 'M' ? 'MASCULINO' : (responseData.genero === 'F' ? 'FEMININO' : 'Não informado');
+                // CORREÇÃO: A API pública retorna `data_nascimento`.
                 outNascimento.textContent = responseData.data_nascimento || 'Não informado';
             } else {
                 outSituacao.textContent = responseData.situacao || 'Não informado';
