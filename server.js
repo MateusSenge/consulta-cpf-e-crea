@@ -3,24 +3,33 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import consultaCrea from './api/consulta-crea.js';
 import consultaCnpj from './api/consulta-cnpj.js';
+import consultaExterna from './api/consulta-externa.js';
+import { serverConfig } from './config/index.js';
+import { 
+  createRateLimit, 
+  corsMiddleware, 
+  helmetMiddleware, 
+  securityLogger,
+  sanitizeInput,
+  inputValidation
+} from './middleware/security.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware para permitir CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+// Middlewares de Segurança
+app.use(helmetMiddleware);
+app.use(createRateLimit());
+app.use(securityLogger);
+app.use(sanitizeInput);
+app.use(corsMiddleware);
 
-// Rotas da API
-app.get('/api/consulta-crea', (req, res) => consultaCrea(req, res));
-app.get('/api/consulta-cnpj', (req, res) => consultaCnpj(req, res));
+// Rotas da API com validação
+app.get('/api/consulta-crea', inputValidation('cpf'), (req, res) => consultaCrea(req, res));
+app.get('/api/consulta-cnpj', inputValidation('cnpj'), (req, res) => consultaCnpj(req, res));
+app.get('/api/consulta-externa', inputValidation('cpf'), (req, res) => consultaExterna(req, res));
 
 // Servir arquivos estáticos da pasta public
 app.use(express.static(join(__dirname, 'public')));
@@ -30,6 +39,8 @@ app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+app.listen(serverConfig.port, () => {
+  console.log(`🔒 Servidor seguro rodando em http://localhost:${serverConfig.port}`);
+  console.log(`🌍 Ambiente: ${serverConfig.nodeEnv}`);
+  console.log(`🚀 Sistema de consulta CPF/CNPJ iniciado com segurança`);
 });

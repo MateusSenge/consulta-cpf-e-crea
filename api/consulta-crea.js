@@ -1,15 +1,13 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+import { apiConfig } from '../config/index.js';
 
 // Helper para formatar o CPF
 const formatCpfForCrea = (cpf) => String(cpf || '').replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 
 // Nossa função principal, agora mais limpa
 export default async function handler(req, res) {
-    // Configurações de CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Configurações de CORS já são tratadas pelo middleware
     
     // Responde imediatamente para requisições OPTIONS (pré-voo)
     if (req.method === 'OPTIONS') {
@@ -25,21 +23,21 @@ export default async function handler(req, res) {
     console.log('[CREA Scraper] Iniciando consulta para CPF:', cpf);
 
     try {
-        // Lança o navegador usando o novo pacote, que funciona na Vercel
+        // Lança o navegador usando configurações seguras
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
-            headless: chromium.headless, // 'new' para headless moderno
+            headless: apiConfig.crea.headless,
             ignoreHTTPSErrors: true,
         });
 
         const page = await browser.newPage();
-        const TIMEOUT = 20000; // Aumentamos o timeout para 20 segundos
+        const TIMEOUT = apiConfig.crea.timeout;
         page.setDefaultNavigationTimeout(TIMEOUT);
         
-        console.log('[CREA Scraper] Navegando para a página do CREA...');
-        await page.goto('https://crea-mg.sitac.com.br/?servico=profissionais-cadastrados');
+        console.log('[CREA] Navegando para a página do CREA...');
+        await page.goto(apiConfig.crea.url);
 
         console.log('[CREA Scraper] Preenchendo formulário...');
         await page.waitForSelector('#cpfcnpj', { timeout: TIMEOUT });

@@ -1,3 +1,5 @@
+import { apiConfig } from '../config/index.js';
+
 // Validação de CNPJ
 function validarCNPJ(cnpj) {
   cnpj = cnpj.replace(/[\D]/g, '');
@@ -43,10 +45,7 @@ function formatarCNPJ(cnpj) {
 
 // Função principal da API
 export default async function handler(req, res) {
-  // Configurações de CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // Configurações de CORS já são tratadas pelo middleware
   
   // Responde imediatamente para requisições OPTIONS (pré-voo)
   if (req.method === 'OPTIONS') {
@@ -67,11 +66,15 @@ export default async function handler(req, res) {
     // Remove caracteres não numéricos
     const cnpjLimpo = cnpj.replace(/[\D]/g, '');
     
-    // Faz a requisição para a API da Receita WS
-    const response = await fetch(`https://receitaws.com.br/v1/cnpj/${cnpjLimpo}`, {
+    console.log(`[CNPJ API] Consultando CNPJ: ${cnpjLimpo}`);
+    
+    // Faz a requisição para a API da Receita WS usando configuração segura
+    const response = await fetch(`${apiConfig.cnpjApi.baseUrl}/${cnpjLimpo}`, {
       headers: {
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'User-Agent': 'SENGE-MG-Consulta/1.0'
+      },
+      timeout: 10000 // timeout de 10 segundos
     });
 
     if (!response.ok) {

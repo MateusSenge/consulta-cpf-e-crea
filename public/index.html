@@ -6,13 +6,30 @@
   <meta name="description" content="Sistema de consulta de CPF e CNPJ - Desenvolvido por Mateus Teixeira">
   <title>Consulta de CPF/CNPJ — SENGE‑MG</title>
   
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
   <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script src="devtools-message.js"></script>
   <script src="script.js" defer></script>
 </head>
 <body>
   <div class="background-shapes"></div>
+  
+  <!-- Botão Flutuante de Tema -->
+  <button id="themeToggle" class="theme-toggle" title="Alternar Tema">
+    <span class="theme-icon">🌙</span>
+  </button>
+  
   <main class="container">
+    <!-- Indicador de Status -->
+    <div id="statusIndicator" class="status-indicator">
+      <span class="status-dot"></span>
+      <span class="status-text">Sistema Online</span>
+    </div>
+    
     <div class="card">
       <header class="card-header">
         <div class="logo">MG</div>
@@ -25,15 +42,20 @@
       <section class="card-body">
         <form id="form" onsubmit="return false">
           <select id="source" title="Fonte da Consulta">
-              <option value="api">API Pública</option>
-              <option value="crea">CREA-MG</option>
+              <option value="api">🌐 API Pública</option>
+              <option value="crea">🏗️ CREA-MG (Temporariamente Indisponível)</option>
           </select>
           <div id="inputContainer">
             <input id="cpf" type="text" placeholder="Digite o CPF" maxlength="14" autocomplete="off" />
             <button id="check" type="submit">Consultar</button>
           </div>
         </form>
-        <div class="hint">Limite de 3 consultas por min.</div>
+        <div class="hint">Limite de 15 consultas por min.</div>
+        
+        <!-- Contador de Consultas -->
+        <div class="consult-counter">
+          Consultas neste minuto: <span id="consultCount">0</span>/15
+        </div>
 
         <div id="banner" class="banner" style="display:none"></div>
 
@@ -114,11 +136,35 @@
       </section>
     </div>
     <footer class="footer-note">
-        Interface de consulta interna | Mateus Teixeira
+        Interface de consulta interna | 
+        <a href="https://instagram.com/theuska._" target="_blank" rel="noopener noreferrer" class="instagram-link">
+          Mateus Teixeira
+        </a>
     </footer>
   </main>
   
   <div id="toast" class="toast"></div>
+  
+  <!-- Modal Glassmorphism -->
+  <div id="modal" class="modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-icon">⚠️</div>
+      <div class="modal-title">Funcionalidade Temporariamente Indisponível</div>
+      <div class="modal-message">
+        O consulta via CREA-MG está temporariamente fora do ar para manutenção.
+        <br>
+        Retornando automaticamente para a consulta de CPF via API...
+      </div>
+      <div class="modal-progress">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">Redirecionando...</div>
+      </div>
+      <button id="modalClose" class="modal-close-btn">Continuar</button>
+    </div>
+  </div>
 
 </body>
 </html>

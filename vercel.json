@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/consulta-crea.js",
       "use": "@vercel/node"
     },
@@ -10,22 +14,27 @@
       "use": "@vercel/node"
     },
     {
-      "src": "public/**/*",
-      "use": "@vercel/static"
+      "src": "api/consulta-externa.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/consulta-crea",
-      "dest": "/api/consulta-crea.js"
+      "src": "/api/(.*)",
+      "dest": "/api/$1.js"
     },
     {
-      "src": "/api/consulta-cnpj",
-      "dest": "/api/consulta-cnpj.js"
-    },
-    {
-      "src": "^/(.*)",
+      "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ]
+  ],
+  "functions": {
+    "server.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
+

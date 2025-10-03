@@ -6,11 +6,16 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "security-check": "node -e \"console.log('🔒 Verificando configurações de segurança...'); require('./config/index.js'); console.log('✅ Configurações OK');\""
   },
   "dependencies": {
     "@sparticuz/chromium": "^123.0.1",
+    "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
     "node-fetch": "^3.3.2",
     "puppeteer-core": "^22.10.0"
   },
