@@ -3,36 +3,13 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node",
-      "config": {
-        "runtime": "nodejs18.x"
-      }
-    },
-    {
-      "src": "api/consulta-crea.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/consulta-cnpj.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/consulta-externa.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "dest": "/server.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
-
