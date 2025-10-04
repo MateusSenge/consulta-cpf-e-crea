@@ -70,28 +70,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateStatus(text, type = 'default') {
+    // Estados do sistema
+    let systemStatus = {
+        state: 'connecting', // connecting, online, offline
+        message: 'Conectando...',
+        type: 'checking'
+    };
+
+    function setSystemStatus(state, message) {
+        systemStatus = { state, message, type: state === 'connecting' ? 'checking' : state === 'online' ? 'default' : 'error' };
+        updateStatusDisplay();
+    }
+
+    function updateStatusDisplay() {
         if (!statusIndicator) return;
         
         const statusText = statusIndicator.querySelector('.status-text');
         if (statusText) {
-            statusText.textContent = text;
+            statusText.textContent = systemStatus.message;
         }
         
-        // Remove classes anteriores
-        statusIndicator.classList.remove('checking', 'success');
+        // Remove todas as classes de status
+        statusIndicator.classList.remove('checking', 'success', 'error');
         
-        // Adiciona nova classe se for diferente de default
-        if (type !== 'default') {
-            statusIndicator.classList.add(type);
+        // Adiciona classe baseada no estado
+        if (systemStatus.type !== 'default') {
+            statusIndicator.classList.add(systemStatus.type);
         }
+    }
+
+    function checkSystemHealth() {
+        // Testa conectividade e APIs
+        Promise.all([
+            fetch(`${config.endpoints?.crea || '/api/consulta-crea'}?test=true`).catch(() => null),
+            fetch(`${config.endpoints?.cnpj || '/api/consulta-cnpj'}?test=true`).catch(() => null),
+            fetch(`${config.endpoints?.externalCpf || '/api/consulta-externa'}?test=true`).catch(() => null)
+        ]).then(results => {
+            const allWorking = results.some(result => result !== null);
+            
+            if (allWorking) {
+                setSystemStatus('online', 'Sistema Online');
+            } else {
+                setSystemStatus('offline', 'Sistema Offline');
+            }
+        }).catch(() => {
+            setSystemStatus('offline', 'Sistema Offline');
+        });
+    }
+
+    // Função para verificação inicial do sistema
+    async function initializeSystemStatus() {
+        setSystemStatus('connecting', 'Conectando...');
         
-        // Auto-reset para online após 3 segundos
-        if (type !== 'default') {
-            setTimeout(() => {
-                updateStatus('Sistema Online', 'default');
-            }, 3000);
-        }
+        // Verifica status após um delay inicial
+        setTimeout(() => {
+            checkSystemHealth();
+        }, 2000);
+        
+        // Verifica status periodicamente a cada 30 segundos
+        setInterval(checkSystemHealth, 30000);
+    }
+
+    // Função legada mantida para compatibilidade
+    function updateStatus(text, type = 'default') {
+        // Para consultas específicas, apenas atualiza temporariamente sem afetar status do sistema
+        // O status do sistema continua sendo gerenciado pelo sistema de saúde
+        updateStatusDisplay();
     }
 
     // ----- SISTEMA DE TEMAS -----
@@ -231,14 +275,53 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('show');
     }
 
-    // Animação para atualização de campos
-    async function animateFieldUpdate(element, newText) {
-        element.style.opacity = '0.5';
-        await new Promise(resolve => setTimeout(resolve, 100));
-        element.textContent = newText;
-        element.style.opacity = '1';
-        element.classList.add('success-flash');
-        setTimeout(() => element.classList.remove('success-flash'), 1000);
+    // Variável para controlar se deve mostrar dados imediatamente ou aguardar
+    let pendingUpdates = [];
+    let updateTimeout = null;
+
+    // Função para atualizar campos com delay agrupado
+    function queueFieldUpdate(element, newText) {
+        pendingUpdates.push({ element, newText });
+        
+        if (updateTimeout) clearTimeout(updateTimeout);
+        
+        updateTimeout = setTimeout(() => {
+            showPendingUpdates();
+        }, 500); // Espera 500ms para agrupar todas as atualizações
+    }
+
+    async function showPendingUpdates() {
+        if (pendingUpdates.length === 0) return;
+        
+        // Fade out todos os campos com skeleton
+        pendingUpdates.forEach(({ element }) => {
+            element.style.opacity = '0.3';
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Atualiza todos os campos simultaneamente
+        pendingUpdates.forEach(({ element, newText }) => {
+            if (element && newText && newText.trim() !== '') {
+                element.classList.remove('skeleton');
+                element.textContent = newText;
+                element.classList.add('success-flash');
+            }
+        });
+        
+        // Fade in todos os campos
+        pendingUpdates.forEach(({ element }) => {
+            element.style.opacity = '1';
+        });
+        
+        // Remove flash após 1 segundo
+        setTimeout(() => {
+            pendingUpdates.forEach(({ element }) => {
+                element.classList.remove('success-flash');
+            });
+        }, 1000);
+        
+        pendingUpdates = [];
     }
 
     function toggleFields(source) {
@@ -263,19 +346,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function clearResults() {
-        outCpf.textContent = '—';
-        outNome.textContent = '—';
-        outGenero.textContent = '—';
-        outNascimento.textContent = '—';
-        outSituacao.textContent = '—';
-        outTitulo.textContent = '—';
-        // Limpa campos específicos de CNPJ
-        document.querySelectorAll('.cnpj-field .value').forEach(el => {
+        // Remove skeleton classes
+        document.querySelectorAll('.value').forEach(el => {
+            el.classList.remove('skeleton');
             el.textContent = '—';
         });
         
         // Remove visual de dados encontrados
         resultsGrid.classList.remove('has-data');
+    }
+
+    function showLoadingSkeleton() {
+        // Esconde todos os campos primeiro
+        document.querySelectorAll('.field').forEach(f => f.style.display = 'none');
+        
+        if (currentMode === 'cpf') {
+            const source = sourceSel.value;
+            // Mostra campos baseados na fonte para CPF
+            document.querySelectorAll('.crea-field').forEach(f => f.style.display = source === 'crea' ? 'block' : 'none');
+            document.getElementById('field-genero').style.display = source === 'api' ? 'block' : 'none';
+            document.getElementById('field-nascimento').style.display = source === 'api' ? 'block' : 'none';
+            
+            // Mostra campos básicos sempre
+            document.querySelectorAll('.field:not(.crea-field):not(.cnpj-field):not(#field-genero):not(#field-nascimento)').forEach(f => {
+                f.style.display = 'block';
+            });
+        } else {
+            // Mostra campos de CNPJ
+            document.querySelectorAll('.cnpj-field').forEach(f => f.style.display = 'block');
+            
+            // Mostra campos básicos sempre
+            document.querySelectorAll('.field:not(.crea-field):not(.cnpj-field):not(#field-genero):not(#field-nascimento)').forEach(f => {
+                f.style.display = 'block';
+            });
+        }
+        
+        // Adiciona skeleton animation aos campos visíveis
+        setTimeout(() => {
+            document.querySelectorAll('.field[style*="block"] .value').forEach(el => {
+                el.classList.add('skeleton');
+                el.textContent = '';
+            });
+        }, 100);
     }
 
     // Alterna entre modos de consulta (CPF/CNPJ)
@@ -342,8 +454,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCheck.classList.add('loading');
         btnCheck.textContent = 'Consultando...';
         
-        // Atualiza status indicador
-        updateStatus('Consultando ' + (source === 'crea' ? 'CREA-MG' : 'API Externa') + '...', 'checking');
+        // Mostra campos com skeleton loading
+        showLoadingSkeleton();
+        
+        // Status do sistema não é alterado durante consultas específicas
         
         // Anima os campos sendo preenchidos
         toggleFields(source);
@@ -369,21 +483,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 responseData = data.data; 
             }
             
-            // Anima a exibição dos resultados
-            await animateFieldUpdate(outCpf, fmtCpf(cleaned));
-            await animateFieldUpdate(outNome, responseData.nome ? String(responseData.nome).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase() : 'NÃO ENCONTRADO');
+            // Atualiza todos os campos de uma vez após skeleton
+            queueFieldUpdate(outCpf, fmtCpf(cleaned));
+            queueFieldUpdate(outNome, responseData.nome ? String(responseData.nome).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase() : 'NÃO ENCONTRADO');
             
             if (source === 'api') {
-                await animateFieldUpdate(outGenero, responseData.genero === 'M' ? 'MASCULINO' : (responseData.genero === 'F' ? 'FEMININO' : 'Não informado'));
-                await animateFieldUpdate(outNascimento, responseData.data_nascimento || 'Não informado');
+                queueFieldUpdate(outGenero, responseData.genero === 'M' ? 'MASCULINO' : (responseData.genero === 'F' ? 'FEMININO' : 'Não informado'));
+                queueFieldUpdate(outNascimento, responseData.data_nascimento || 'Não informado');
             } else {
-                await animateFieldUpdate(outSituacao, responseData.situacao || 'Não informado');
-                await animateFieldUpdate(outTitulo, responseData.titulo || 'Não informado');
+                queueFieldUpdate(outSituacao, responseData.situacao || 'Não informado');
+                queueFieldUpdate(outTitulo, responseData.titulo || 'Não informado');
             }
             
             // Feedback visual de sucesso
             showToast('✅ Dados encontrados e preenchidos!');
-            updateStatus('Consulta realizada com sucesso!', 'success');
             
             // Adiciona visual de dados encontrados
             resultsGrid.classList.add('has-data');
@@ -410,8 +523,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCheck.classList.add('loading');
         btnCheck.textContent = 'Consultando...';
         
-        // Atualiza status indicador
-        updateStatus('Consultando Receita WS...', 'checking');
+        // Mostra campos com skeleton loading
+        showLoadingSkeleton();
+        
+        // Status do sistema não é alterado durante consultas específicas
         
         toggleFields('cnpj');
         clearResults();
@@ -429,43 +544,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw data;
             }
             
-            // Anima os campos com os dados da empresa
-            await animateFieldUpdate(outCpf, data.cnpj || '—');
-            await animateFieldUpdate(outNome, data.nome ? data.nome.toUpperCase() : 'NÃO ENCONTRADO');
+            // Atualiza todos os campos com os dados da empresa
+            queueFieldUpdate(outCpf, data.cnpj || '—');
+            queueFieldUpdate(outNome, data.nome ? data.nome.toUpperCase() : 'NÃO ENCONTRADO');
             
             // Preenche os campos específicos de CNPJ
             if (data.nomeFantasia) {
-                document.getElementById('outNomeFantasia').textContent = data.nomeFantasia;
+                queueFieldUpdate(document.getElementById('outNomeFantasia'), data.nomeFantasia);
             }
             if (data.endereco) {
                 const endereco = [];
                 if (data.endereco.logradouro) endereco.push(data.endereco.logradouro);
                 if (data.endereco.numero) endereco.push(data.endereco.numero);
                 if (data.endereco.complemento) endereco.push(data.endereco.complemento);
-                document.getElementById('outEndereco').textContent = endereco.join(', ') || '—';
+                queueFieldUpdate(document.getElementById('outEndereco'), endereco.join(', ') || '—');
                 
-                document.getElementById('outBairro').textContent = data.endereco.bairro || '—';
-                document.getElementById('outCidade').textContent = data.endereco.municipio || '—';
-                document.getElementById('outUF').textContent = data.endereco.uf || '—';
-                document.getElementById('outCEP').textContent = data.endereco.cep || '—';
+                queueFieldUpdate(document.getElementById('outBairro'), data.endereco.bairro || '—');
+                queueFieldUpdate(document.getElementById('outCidade'), data.endereco.municipio || '—');
+                queueFieldUpdate(document.getElementById('outUF'), data.endereco.uf || '—');
+                queueFieldUpdate(document.getElementById('outCEP'), data.endereco.cep || '—');
             }
             if (data.cnaePrincipal) {
-                document.getElementById('outAtividade').textContent = 
-                    `${data.cnaePrincipal.codigo} - ${data.cnaePrincipal.descricao}` || '—';
+                queueFieldUpdate(document.getElementById('outAtividade'), 
+                    `${data.cnaePrincipal.codigo} - ${data.cnaePrincipal.descricao}` || '—');
             }
             if (data.situacao) {
-                document.getElementById('outSituacaoCNPJ').textContent = data.situacao;
+                queueFieldUpdate(document.getElementById('outSituacaoCNPJ'), data.situacao);
             }
             if (data.abertura) {
-                document.getElementById('outAbertura').textContent = data.abertura;
+                queueFieldUpdate(document.getElementById('outAbertura'), data.abertura);
             }
             if (data.contato) {
-                document.getElementById('outTelefone').textContent = data.contato.telefone || '—';
-                document.getElementById('outEmail').textContent = data.contato.email || '—';
+                queueFieldUpdate(document.getElementById('outTelefone'), data.contato.telefone || '—');
+                queueFieldUpdate(document.getElementById('outEmail'), data.contato.email || '—');
             }
             
             showToast('✅ Dados da empresa encontrados!');
-            updateStatus('Dados da empresa consultados!', 'success');
             
             // Adiciona visual de dados encontrados
             resultsGrid.classList.add('has-data');
@@ -541,4 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inicializa sistema de temas
     initTheme();
+    
+    // Inicializa sistema de status
+    initializeSystemStatus();
 });

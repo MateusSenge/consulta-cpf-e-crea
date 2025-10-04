@@ -3,7 +3,7 @@
 <div align="center">
   <img src="public/favicon.png" width="100" alt="Logo SENGE-MG">
   
-  <h3>🔍 Sistema profissional de consulta de CPF e CNPJ com interface moderna</h3>
+  <h3>🔍 Sistema profissional de consulta de CPF e CNPJ com interface moderna e recursos avançados</h3>
   <p><strong>Desenvolvido por:</strong> <a href="https://instagram.com/theuska._">Mateus Teixeira</a></p>
   
   <p>
@@ -11,6 +11,7 @@
     <a href="#tecnologias">⚡ Tecnologias</a> • 
     <a href="#deployment">🚀 Deploy</a> • 
     <a href="#temas">🎨 Temas</a> • 
+    <a href="#ux-features">✨ UX</a> • 
     <a href="#suporte">💬 Suporte</a>
   </p>
   
@@ -18,6 +19,7 @@
   ![Temas](https://img.shields.io/badge/Temas-Claro%20%7C%20Escuro-blue.svg)
   ![Segurança](https://img.shields.io/badge/Segurança-Avançada-green.svg)
   ![Mobile](https://img.shields.io/badge/Mobile-Responsivo-orange.svg)
+  ![UX](https://img.shields.io/badge/UX-Moderna-purple.svg)
 </div>
 
 ---
@@ -37,12 +39,26 @@
 - 🪟 **Modal Inteligente** - Para funcionalidades temporariamente indisponíveis
 - 💡 **Status em Tempo Real** - Indicador visual das operações
 
-### 📊 **Feedback Visual Avançado**
-- 🟢 **Status Dot** - Verde (Online) / Vermelho (Consultando) / Azul (Sucesso)
-- 📈 **Contador de Consultas** - Visualização do rate limit (X/15 consultas/minuto)
-- ✨ **Auto-preenchimento Animado** - Campos preenchem com efeito flash
+### ✨ **UX/UI Avançada**
+- 🎭 **Skeleton Loading** - Animação elegante durante carregamento
+- 📊 **Batch Updates** - Informações aparecem todas juntas após skeleton
 - 🔔 **Toast Notifications** - Feedback imediato das ações
+- 💫 **Success Flash** - Animação verde de confirmação nos campos
 - 📋 **Select Inteligente** - Aparece/desaparece baseado no modo (CPF/CNPJ)
+- 🎯 **Copyable Fields** - Clique para copiar qualquer informação
+
+### 🖱️ **Sistema de Status Inteligente**
+- 🟡 **Conectando** - Estado inicial testando APIs automaticamente
+- 🟢 **Sistema Online** - Todas APIs funcionando, verificação a cada 30s
+- 🔴 **Sistema Offline** - Problemas detectados automaticamente
+- 🔄 **Não muda em consultas** - Status permanente apenas para falhas reais
+
+### 📊 **Feedback Visual Avançado**
+- 🟢 **Status Dot** - Verde (Online) / Amarelo (Conectando) / Vermelho (Offline)
+- 📈 **Contador de Consultas** - Visualização do rate limit (X/15 consultas/minuto)
+- ✨ **Auto-preenchimento Animado** - Campos preenchem com efeito elegante
+- 🔔 **Toast Notifications** - Feedback imediato das ações
+- 📋 **Progress Indicators** - Estados de carregamento visuais
 
 ### 🛡️ **Segurança Avançada**
 - 🔒 **Rate Limiting** - 15 consultas/minuto configuráveis
@@ -62,39 +78,45 @@
 
 ## ⚡ **Tecnologias**
 
-<details>
-<summary>🔧 Stack Principal</summary>
+<detail>
+<summary>🔧 Stack Principal Completo</summary>
 
 **Backend:**
 - Node.js (ES Modules)
-- Express.js
-- dotenv (configuração)
-- helmet (segurança)
-- express-rate-limit (limitação)
-- express-validator (validação)
+- Express.js com middlewares avançados
+- dotenv (configuração segura)
+- helmet (segurança HTTP)
+- express-rate-limit (limitação inteligente)
+- express-validator (validação robusta)
+- cors (controle de origem)
 
 **Frontend:**
-- HTML5 Semântico
-- CSS3 Moderno (Grid/Flexbox)
+- HTML5 Semântico com acessibilidade
+- CSS3 Moderno (Grid/Flexbox/Glassmorphism)
 - JavaScript ES6+ (Vanilla)
-- Glassmorphism Design
-- Dual Theme System
-- CSS Custom Properties
+- Dual Theme System com localStorage
+- CSS Custom Properties avançadas
+- RequestAnimationFrame otimizado
 
 **APIs Externas:**
-- Receita WS (CNPJ)
-- APICPF.com (CPF)
-- CREA-MG (futuramente)
+- Receita WS (CNPJ - gratuito)
+- APICPF.com (CPF - API Key)
+- CREA-MG (futuramente - web scraping)
 
-**Deploy:**
-- Vercel (serverless)
-- GitHub Actions (CI/CD)
+**Build & Deploy:**
+- Vercel (serverless functions)
+- GitHub Actions (CI/CD automático)
+- Environment Variables configuráveis
 
 **Funcionalidades Especiais:**
-- localStorage para persistência
-- CSS Custom Properties para temas
-- RequestAnimationFrame para animações otimizadas
-- Event Delegation para performance
+- Skeleton Loading animations
+- Batch data updates
+- Health check automático
+- Rate limiting visual
+- Copy functionality
+- Toast notifications
+- Status indicators
+- Theme persistence
 
 </details>
 
@@ -104,7 +126,7 @@
 
 ### **📋 Pré-requisitos**
 ```bash
-# Clonar o repositório
+# Clone o repositório
 git clone <seu-repo>
 cd sistema-consulta-cpf-cnpj
 
@@ -114,20 +136,22 @@ npm install
 
 ### **⚙️ Configuração**
 
-1. **Copiar arquivo de ambiente:**
+**1. Copiar arquivo de ambiente:**
 ```bash
 cp .env.example .env
 ```
 
-2. **Configurar variáveis no Vercel:**
+**2. Configurar variáveis no Vercel:**
 ```bash
 # Variáveis obrigatórias
-SECRET_KEY=sua-chave-secreta-forte
-EXTERNAL_API_KEY=sua-api-key-do-apicpf
+SECRET_KEY=sua-chave-secreta-forte-super-longa
+EXTERNAL_API_KEY=sua-api-key-do-apicpf-aqui
 
 # Configurações opcionais
 API_RATE_LIMIT_MAX_REQUESTS=15
-CORS_ALLOWED_ORIGINS=https://seudominio.com
+API_RATE_LIMIT_WINDOW_MS=60000
+CORS_ALLOWED_ORIGINS=https://seusite.com,https://www.seusite.com
+NODE_ENV=production
 ```
 
 ### **🌐 Deploy Automático**
@@ -137,14 +161,14 @@ CORS_ALLOWED_ORIGINS=https://seudominio.com
    - Acesse [vercel.com](https://vercel.com)
    - Import o projeto do GitHub
 
-2. **Configurar Variáveis de Ambiente:**
+2. **Configurar Environment Variables:**
    ```
    Vercel Dashboard → Project Settings → Environment Variables
    ```
 
 3. **Deploy:**
    ```
-   Push das mudanças = Deploy automático ✅
+   Push das mudanças → Automatic Deploy ✅
    ```
 
 ### **📱 URLs de Acesso**
@@ -177,6 +201,38 @@ CORS_ALLOWED_ORIGINS=https://seudominio.com
 
 ---
 
+## ✨ **Recursos UX/UI Únicos**
+
+### 🎭 **Skeleton Loading System**
+```javascript
+// Durante consulta todas os campos relevantes aparecem
+// com animação skeleton elegante por ~500ms
+// Depois TODAS as informações aparecem juntas de uma vez
+// com animação de flash verde de confirmação
+```
+
+### 📊 **Sistema de Status Inteligente**
+```javascript
+// Estados permanentes que não mudam durante consultas:
+🟡 "Conectando..."   → 2s testando APIs
+🟢 "Sistema Online"  → Todas APIs OK (verificação 30s)
+🔴 "Sistema Offline" → Problemas detectados
+```
+
+### 💫 **Batch Data Updates**
+- ⚡ Delay de 500ms para agrupar updates
+- 🎯 Todos os campos atualizam simultaneamente
+- ✨ Suave fade out → update → fade in
+- 💚 Flash verde de confirmação
+
+### 🎮 **Interatividade Avançada**
+- 📋 Click para copiar qualquer campo
+- 🔄 Temas alternam com animação 180°
+- 📱 Responsivo perfeito mobile-first
+- 🎨 Glassmorphism em todos elementos
+
+---
+
 ## 💬 **Suporte e Contato**
 
 ### **🛠️ Desenvolvido por Mateus Teixeira**
@@ -187,30 +243,36 @@ CORS_ALLOWED_ORIGINS=https://seudominio.com
   
   **💼 Precisa de sistemas similares? Faça um orçamento!**
   
-  *Especialista em desenvolvimento web profissional com segurança avançada*
+  *Especialista em desenvolvimento web profissional com UX moderna*
 
-</div>
+**
 
-### **🔧 Customizações Disponíveis**
-- Sistema de autenticação/autorização
-- Integração com mais bancos de dados
-- Dashboard administrativo
-- Relatórios e estatísticas
-- APIs customizadas para seu negócio
-- Sistemas de e-commerce
-- Landing pages profissionais
-- **Novos temas** e personalizações visuais
+---
+
+## 🔧 **Customizações Disponíveis**
+
+- 🛡️ Sistema de autenticação/autorização completo
+- 📊 Dashboard administrativo avançado
+- 📈 Relatórios e estatísticas em tempo real
+- 🔌 APIs customizadas para seu negócio
+- 🛒 Sistemas de e-commerce robustos
+- 🎨 Landing pages profissionais
+- 🌐 Sistemas multi-idioma
+- 📱 Apps mobile nativos
+- ⚡ Microservices e arquiteturas escaláveis
 
 ---
 
 ## 📊 **Estatísticas do Projeto**
 
-- **Segurança:** ✅ Rate Limiting + Helmet + CORS + Validação
-- **Performance:** ✅ Serverless + Otimizações CSS/JS
-- **Responsividade:** ✅ Mobile-first + Touch-friendly
-- **UX/UI:** ✅ Glassmorphism + Dual Theme + Animações
-- **Código:** ✅ ES6+ + Modular + Escalável
-- **Acessibilidade:** ✅ Semantic HTML + ARIA + Keyboard Navigation
+- **Segurança:** ✅ Rate Limiting + Helmet + CORS + Validação + Sanitização
+- **Performance:** ✅ Serverless + Skeleton Loading + Optimizações CSS/JS
+- **Responsividade:** ✅ Mobile-first + Touch-friendly + Adaptive layouts
+- **UX/UI:** ✅ Glassmorphism + Dual Theme + Batch Updates + Status System
+- **Funcionalidades:** ✅ Copy to clipboard + Toast notifications + Health checks
+- **Código:** ✅ ES6+ + Modular + Escalável + Type-safe patterns
+- **Acessibilidade:** ✅ Semantic HTML + ARIA + Keyboard navigation
+- **Monitoramento:** ✅ Security logs + Health checks + Rate limit tracking
 
 ---
 
@@ -226,38 +288,43 @@ Todos os direitos reservados. © 2024 Mateus Teixeira
 
 ### 🎨 **Interface Dark Theme:**
 ```
-🌙 Sistema Online                    ← Status Indicator
+🌙 Sistema Online                    ← Status permanente
 ┌─────────────────────────────────┐
-│ LOGO      SENGE‑MG               │ ← Header
-│           Consulta CPF/CNPJ      │
+│ LOGO      SENGE‑MG               │ ← Header com gradiente
+│           Consulta CPF/CNPJ      │   azul no logo MG
+│ 📋 Select  [🌐API] [Consultar]   │ ← Botões azuis consistentes
 ├─────────────────────────────────┤
-│ 🌐 API Pública    [Consultar]   │ ← Form
-│ ⬇️ Select aparece só no modo CPF │
-├─────────────────────────────────┤
-│ Campo1 │ Campo2                  │ ← Results Grid
-│ Campo3 │ Campo4                  │
+│ ████ ████  (Skeleton Loading)   │ ← Campos skeleton
+│ ████ ████                       │   → TODAS aparecem juntas
 └─────────────────────────────────┘
-Interface interna | Mateus Teixeira ← Footer com link Instagram
+Interface interna | @theuska._       ← Instagram link
 ```
 
-### ☀️ **Interface Light Theme:**
-- Mesma estrutura com cores claras
-- Fundo branco/cinza claro
-- Textos escuros para melhor legibilidade
-- Glassmorphism adaptado para tema claro
+### ☀️ **Interface Light Theme:**  
+- Mesma estrutura com cores adaptadas
+- Botões mantêm azul profissional
+- Skeleton com cores tema claro
+- Status permanente independente
+
+### 🎯 **UX Features:**
+- 🪟 Botão tema flutuante (canto superior direito)
+- 📊 Status indicador permanente (não muda em consultas)
+- ⚡ Skeleton → Batch update → Flash confirmação
+- 📱 Mobile responsivo com glassmorphism
+- 💾 Tema salvo automaticamente
 
 ---
 
 <div align="center">
   
-  <strong>🚀 Sistema desenvolvido com qualidade e segurança profissional</strong>
+  <strong>🚀 Sistema desenvolvido com qualidade profissional e UX de última geraçõo</strong>
   
   <br>
   
-  <em>Se precisa de algo similar, entre em contato!</em>
+  <em>Se precisa de algo, entre em contato!</em>
   
   <br><br>
   
-  *Made with ❤️ by Mateus Teixeira*
+  *Made by Mateus Teixeira ([@theuska._](https://instagram.com/theuska._))*
   
 </div>

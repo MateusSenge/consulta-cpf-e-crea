@@ -95,7 +95,7 @@ body {
   width: 50px;
   height: 50px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  background: linear-gradient(135deg, #0b5ed7, #2c7be5) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,8 +177,8 @@ input[type=text]:focus {
   border-color: var(--accent-start);
 }
 
-button, .toggle-mode {
-  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+button:not(.toggle-mode) {
+  background: linear-gradient(90deg, #0b5ed7, #2c7be5) !important;
   color: white;
   border: 0;
   padding: 12px 20px;
@@ -193,18 +193,12 @@ button, .toggle-mode {
   width: 100%;
 }
 
-.toggle-mode {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 5px 0;
-  padding: 10px 15px;
-  font-size: 0.85rem;
-}
+/* Regras conflitantes removidas - usando apenas a versão acima */
 
 .toggle-mode:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg, #2c7be5, #4285f4) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(11, 94, 215, 0.2);
+  box-shadow: 0 4px 15px rgba(11, 94, 215, 0.4);
 }
 
 button:hover:not(:disabled) {
@@ -273,12 +267,42 @@ button:disabled {
   word-wrap: break-word;
 }
 
+/* Skeleton Animation para campos vazios */
+.value.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  height: 20px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+[data-theme="light"] .value.skeleton {
+  background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+}
+
+[data-theme="dark"] .value.skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Estilo para o botão de alternar entre CPF e CNPJ */
 .toggle-mode {
     display: inline-block;
     margin: 10px 0;
     padding: 8px 16px;
-    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    background: linear-gradient(135deg, #0b5ed7, #2c7be5) !important;
     color: white;
     border: none;
     border-radius: 20px;
@@ -620,6 +644,15 @@ input[type=text], select {
   color: #2c7be5;
 }
 
+.status-indicator.error .status-dot {
+  background: #d32f2f;
+  animation: pulse-dot-fast 0.8s infinite;
+}
+
+.status-indicator.error .status-text {
+  color: #d32f2f;
+}
+
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -666,7 +699,7 @@ input[type=text], select {
 }
 
 /* Ajuste para campos longos em telas pequenas */
-/* Botão Flutuante de Tema */
+/* Botão Flutuante de Tema - Posicionamento forçado */
 .theme-toggle {
   position: fixed;
   top: 20px;
@@ -675,11 +708,11 @@ input[type=text], select {
   height: 50px;
   border-radius: 50%;
   border: none;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: rgba(22, 32, 53, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 8px 20px var(--shadow);
+  box-shadow: 0 8px 20px rgba(0, 0, 0.37);
   cursor: pointer;
   z-index: 1000;
   transition: all 0.3s ease;
@@ -690,7 +723,34 @@ input[type=text], select {
 
 .theme-toggle:hover {
   transform: translateY(-2px) scale(1.1);
-  box-shadow: 0 12px 30px var(--shadow);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(22, 32, 53, 0.9) !important;
+}
+
+/* Force tema toggle não afetado por outras regras */
+.theme-toggle.theme-toggle {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  background: rgba(22, 32, 53, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  overflow: visible !important;
+}
+
+/* Garantir que nenhum elemento pai interfira */
+.container, .card, .background-shapes {
+  overflow-x: visible !important;
+}
+
+body {
+  overflow-x: hidden !important;
 }
 
 .theme-toggle:active {
@@ -707,8 +767,8 @@ input[type=text], select {
   transform: rotate(180deg);
 }
 
-/* Transição suave entre temas */
-*, *::before, *::after {
+/* Transição suave entre temas (excluindo botão de tema) */
+.card, .status-indicator, .field, input, select, .modal-content, .toast {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
